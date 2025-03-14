@@ -1,0 +1,87 @@
+/* ✅ MEGA MENU (Hidden by default) */
+.mega-menu {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Off-screen initially */
+    width: 50%;
+    max-width: 220px;
+    min-height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+    padding: 10px 15px;
+    transition: right 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    z-index: 999;
+}
+
+/* ✅ Show Mega Menu when open */
+.mega-menu.open {
+    right: 0;
+}
+
+/* ✅ Mega Menu Navigation */
+.mega-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+    width: 100%;
+}
+
+.mega-nav a {
+    text-decoration: none;
+    font-size: 18px;
+    color: #333;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.mega-nav a:hover {
+    color: #007bff;
+}
+
+/* ✅ Mega Menu Icons */
+.mega-icons {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* ✅ Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px; /* Keep small spacing */
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* ✅ Hide Mega Menu on Large Screens */
+@media (min-width: 1025px) {
+    .mega-menu {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    /* ✅ MEGA MENU (Move away from right edge) */
+    .mega-menu {
+        width: 60%; /* Slightly larger for visibility */
+        max-width: 250px;
+        padding: 15px; /* Add spacing inside */
+    }
+
+    .mega-menu.open {
+        right: 0; /* Keep aligned properly */
+    }
+
+    /* ✅ Close Button (Ensure spacing) */
+    .close-btn {
+        right: 15px;
+    }
+}
