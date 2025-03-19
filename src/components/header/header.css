@@ -88,3 +88,38 @@
     }
 }
 
+@media (max-width: 500px) {
+    .header {
+        height: 70px; /* ✅ Adjust height for smaller screens */
+        padding: 0 10px;
+    }
+
+    .header-container {
+        width: 100%;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap; /* ❌ Prevents wrapping */
+    }
+
+    .logo {
+        font-size: 22px; /* ✅ Smaller size to fit in one line */
+        white-space: nowrap;
+        margin-left: -10px;
+    }
+
+    .menu-icon {
+        display: block;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        margin-bottom: 0px;
+        margin-left: -90px; /* ✅ Ensures it stays on the right */
+    }
+
+    .nav-menu,
+    .icon-container {
+        display: none;
+    }
+}

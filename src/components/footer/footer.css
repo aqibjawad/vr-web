@@ -1,0 +1,166 @@
+/* ✅ Ensure footer width is 100% and prevents scrolling */
+.footer {
+    background-color: #111;
+    color: white;
+    padding: 60px 20px;
+    width: 100%; /* ✅ Keep 100% */
+    max-width: 100vw; /* ✅ Prevents overflow */
+    overflow: hidden; /* ✅ Hides any extra width */
+}
+
+/* ✅ Prevent body & html from scrolling */
+html, body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+/* ✅ Footer Columns */
+.footer-column {
+    flex: 1;
+    min-width: 180px;
+    margin: 10px;
+}
+
+/* ✅ Column Headings */
+.footer-column h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.footer-column p {
+    font-size: 14px;
+    color: #ebe8e8;
+    margin-bottom: 8px;
+}
+
+/* ✅ Move Exclusive Column Slightly to the Left */
+.exclusive-column {
+    margin-left: -20px; /* Adjust left spacing */
+}
+/* ✅ Input Field */
+.footer-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 200px; /* Adjust width as needed */
+}
+
+/* ✅ Input Styling */
+.footer-input input {
+    width: 100%;
+    border: none;
+    padding: 10px;
+    padding-right: 35px; /* Space for the icon */
+    outline: none;
+}
+
+/* ✅ Send Icon Styling */
+.send-icon {
+    position: absolute;
+    right: 10px;
+    font-size: 18px;
+    color: #111112;
+    cursor: pointer;
+}
+
+
+
+/* ✅ Download App Column */
+.download-column {
+    text-align: center;
+}
+
+/* ✅ App Images Layout */
+.app-images {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+/* ✅ QR Code Image (Left Side) */
+.qr-image {
+    width: 90px;
+    height: 90px;
+}
+
+.app-store-images {
+    display: flex;
+    flex-direction: column;
+    gap: 0px; /* ✅ Removes the gap */
+}
+
+.app-store-images img {
+    width: 90px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: -45px; /* ✅ Adjust this value to remove space */
+}
+
+.app-store-images img:last-child {
+    margin-bottom: 0; /* ✅ Prevents extra space below the last image */
+}
+
+
+.app-store-images img:hover {
+    transform: scale(1.05);
+}
+
+/* ✅ Social Media Icons */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 10px;
+}
+
+.social-icons svg {
+    font-size: 20px;
+    color: white;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.social-icons svg:hover {
+    color: #007bff;
+}
+
+/* ✅ Responsive Footer */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-column {
+        width: 100%;
+    }
+
+    .app-images {
+        flex-direction: column; /* Stack images vertically */
+        align-items: center;
+    }
+
+    .app-store-images img {
+        width: 100px;
+    }
+
+    .footer-input {
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+}
