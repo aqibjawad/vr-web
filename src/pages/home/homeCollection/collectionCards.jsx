@@ -19,19 +19,25 @@ const collectionCards = () => {
       name: "Avant Gard",
       image: "/collect2.png",
     },
+    {
+      id: 4,
+      name: "Avant Gard",
+      image: "/collect2.png",
+    },
   ];
 
   return (
-    <Container style={{backgroundColor:"#121212"}}>
+    <Container>
       <Row className="gy-4 mt-5">
         {halls.map((hall) => (
-          <Col key={hall.id} xs={12} md={6} lg={4}>
-            <Card className={`collection-card`}>
+          <Col key={hall.id} xs={12} md={6} lg={3}>
+            <Card className={`collection-card`} style={{ border: 'none' }}>
               <div className="collection-card-image-container">
                 <Card.Img
                   variant="top"
                   src={hall.image}
                   className="collection-card-img"
+                  style={{ border: 'none', outline: 'none' }}
                 />
                 <div className="collection-card-overlay" />
               </div>

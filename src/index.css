@@ -1,4 +1,10 @@
+/* Only apply font globally */
 * {
-    font-family: 'Poppins', sans-serif;
-    background-color: #1A1A1A;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Apply background only to the body */
+body {
+  background-color: #1A1A1A;
+  margin: 0;
 }

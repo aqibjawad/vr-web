@@ -1,6 +1,5 @@
-/* ✅ Ensure footer width is 100% and prevents scrolling */
 .footer {
-    /* background-color: #111; */
+    background-color: #1A1A1A;
     color: white;
     padding: 60px 20px;
     width: 100%; /* ✅ Keep 100% */

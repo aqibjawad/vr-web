@@ -31,7 +31,7 @@ const ARCards = () => {
       <Row className="mt-5">
         {halls.map((hall) => (
           <Col key={hall.id} xs={12} md={6} lg={3}>
-            <Card className={`ar-card ${hall.bgColor}`} style={{ border: 'none' }}>
+            <Card className={`ar-card`} style={{ border: 'none' }}>
               <div className="ar-card-image-container">
                 <Card.Img
                   variant="top"
