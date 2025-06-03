@@ -1,43 +1,70 @@
 import React, { useState } from "react";
-import { CiHeart } from "react-icons/ci";
 import { RiShoppingCart2Line } from "react-icons/ri";
-import { FiMenu } from "react-icons/fi";
+import { FiMenu, FiSearch } from "react-icons/fi";
+import { IoChevronDown } from "react-icons/io5";
 import "./header.css";
 import MegaMenu from "../mega-menu/MegaMenu";
 
 const Header = () => {
-    const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(false);
 
-    return (
-        <header className="header">
-            <div className="header-container">
-                <div className="logo">LOGO</div>
+  return (
+    <header className="header">
+      {/* First Line: Logo and Search Bar with Cart */}
+      <div className="header-container">
+        <div className="logo-section">
+          <div className="logo">LOGO</div>
+          <div className="brand-name">ARTIFACT</div>
+        </div>
+        
+        {/* Search Bar and Cart Icon grouped together */}
+        <div className="right-section">
+          <div className="search-container">
+            <FiSearch className="search-icon" />
+            <input 
+              type="text" 
+              placeholder="Search" 
+              className="search-bar"
+            />
+          </div>
+          
+          <div className="icon-container">
+            <RiShoppingCart2Line className="cart-icon" />
+          </div>
+        </div>
+      </div>
 
-                {/* Desktop Navigation */}
-                <nav className="nav-menu">
-                    <a href="#">Home</a>
-                    <a href="#">Our Story</a>
-                    <a href="#">Products</a>
-                    <a href="#">Services</a>
-                    <a href="#">VR Museum</a>
-                    <a href="#">Seller Account</a>
-                    <a href="#">Contact Us</a>
-                </nav>
+      {/* Second Line: Navigation Menu */}
+      <div className="nav-container">
+        <nav className="nav-menu">
+          <a href="#" className="nav-item">
+            OUR STORY <IoChevronDown className="dropdown-icon" />
+          </a>
+          <a href="#" className="nav-item">AR GALLERIES</a>
+          <a href="#" className="nav-item">VR TOURS</a>
+          <a href="#" className="nav-item">EXHIBITIONS</a>
+          <a href="#" className="nav-item">COLLECTIONS</a>
+          <a href="#" className="nav-item">
+            PRODUCTS <IoChevronDown className="dropdown-icon" />
+          </a>
+          <a href="#" className="nav-item">FEATURED</a>
+          <a href="#" className="nav-item">AUCTIONS</a>
+          <a href="#" className="nav-item">
+            SPECIAL OFFERS <IoChevronDown className="dropdown-icon" />
+          </a>
+          <a href="#" className="nav-item">
+            LOGIN <IoChevronDown className="dropdown-icon" />
+          </a>
+        </nav>
+      </div>
 
-                {/* Wishlist & Cart Icons */}
-                <div className="icon-container">
-                    <CiHeart />
-                    <RiShoppingCart2Line />
-                </div>
-            </div>
+      {/* Burger Menu Icon */}
+      <FiMenu className="menu-icon" onClick={() => setMenuOpen(true)} />
 
-            {/* Burger Menu Icon (Outside header-container) */}
-            <FiMenu className="menu-icon" onClick={() => setMenuOpen(true)} />
-
-            {/* Mega Menu Component */}
-            <MegaMenu isOpen={isMenuOpen} onClose={() => setMenuOpen(false)} />
-        </header>
-    );
+      {/* Mega Menu Component */}
+      <MegaMenu isOpen={isMenuOpen} onClose={() => setMenuOpen(false)} />
+    </header>
+  );
 };
 
 export default Header;

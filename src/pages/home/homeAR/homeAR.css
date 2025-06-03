@@ -1,0 +1,43 @@
+.arMain {
+  background-color: #1a1a1a;
+  padding: 4rem 2rem; /* Proper spacing */
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.arTitle {
+  color: #ffa218;
+  text-align: center;
+  font-weight: 600;
+  font-size: 40px;
+  margin: 0; /* Remove margin, use padding in parent */
+  line-height: 36px;
+}
+
+.moreBtn {
+  width: 200px;
+  height: 43px;
+  border-radius: 4px;
+  background: var(--Color-2, #ffa218);
+  color: #000000;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem; /* Reduced margin */
+  white-space: nowrap;
+  cursor: pointer; /* Better UX */
+}
+
+.ar-card-image-container{
+    border: none;
+}
+
+.ar-card-img {
+  width: 302px;
+  height: 387px;
+}
