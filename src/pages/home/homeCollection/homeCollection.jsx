@@ -18,8 +18,9 @@ const Homecollection = () => {
       </div>
 
       <div className="collectionQuote">
-        "The aim of art is to represent not the outward appearance <br /> of things, but their inward significance."
-        <span className="collectionName"> Aristotle </span>
+        "The aim of art is to represent not the outward appearance <br /> of
+        things, but their inward significance."
+        <span className="collectionName"> Tolstoy </span>
       </div>
     </div>
   );

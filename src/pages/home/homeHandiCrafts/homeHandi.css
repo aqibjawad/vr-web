@@ -1,0 +1,67 @@
+.handiMain {
+    background-color: #121212;
+    padding: 4rem 2rem; /* Proper spacing */
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.homehandihead {
+  color: white;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 50px;
+  margin-top: 5rem;
+}
+
+.handiTitle {
+  color: #ffa218;
+  text-align: center;
+  font-weight: 600;
+  font-size: 40px;
+  margin-top: 2rem;
+  line-height: 36px;
+}
+
+.moreBtn {
+  width: 200px;
+  height: 43px;
+  border-radius: 4px;
+  background: var(--Color-2, #ffa218);
+  color: #000000;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 3rem;
+  white-space: nowrap;
+}
+
+.handiQuote {
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 37px;
+  letter-spacing: 4%;
+  text-align: center;
+  color: white;
+  margin-top: 2rem;
+}
+
+.handiName {
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 37px;
+  letter-spacing: 4%;
+  text-align: center;
+  color: #FFA218;
+}
+
+.handi-card {
+  background-color: #1A1A1A !important;
+}
