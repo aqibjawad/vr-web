@@ -49,11 +49,11 @@ const VRCards = () => {
   ];
 
   return (
-    <Container style={{backgroundColor:"#121212"}}>
+    <Container>
       <Row className="gy-4 mt-5">
         {halls.map((hall) => (
           <Col key={hall.id} xs={12} md={6} lg={4}>
-            <Card className={`vr-card ${hall.bgColor}`}>
+            <Card className={`vr-card`}>
               <div className="vr-card-image-container">
                 <Card.Img variant="top" src={hall.image} className="vr-card-img" />
                 <div className="vr-card-overlay" />

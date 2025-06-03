@@ -1,0 +1,52 @@
+import React from "react";
+import { Container, Row, Col, Card } from "react-bootstrap";
+import "./homeCollection.css"; // custom CSS file
+
+const collectionCards = () => {
+  const halls = [
+    {
+      id: 1,
+      name: "Seascape",
+      image: "/collect1.png",
+    },
+    {
+      id: 2,
+      name: "Realism",
+      image: "/collect2.png",
+    },
+    {
+      id: 3,
+      name: "Avant Gard",
+      image: "/collect2.png",
+    },
+  ];
+
+  return (
+    <Container style={{backgroundColor:"#121212"}}>
+      <Row className="gy-4 mt-5">
+        {halls.map((hall) => (
+          <Col key={hall.id} xs={12} md={6} lg={4}>
+            <Card className={`collection-card`}>
+              <div className="collection-card-image-container">
+                <Card.Img
+                  variant="top"
+                  src={hall.image}
+                  className="collection-card-img"
+                />
+                <div className="collection-card-overlay" />
+              </div>
+              <Card.Body className="text-center text-white">
+                <Card.Title className="collection-card-title">
+                  {hall.name}
+                </Card.Title>
+                <div className="collection-card-line mx-auto"></div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </Container>
+  );
+};
+
+export default collectionCards;
