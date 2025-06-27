@@ -15,7 +15,7 @@ const SimpleModelViewer = () => {
     
     // Create scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf5f5f5); // Slightly off-white background
+    scene.background = new THREE.Color(0xeeeeee); // Slightly off-white background
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -38,14 +38,14 @@ const SimpleModelViewer = () => {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ReinhardToneMapping;
-    renderer.toneMappingExposure = 0.3;
+    renderer.toneMappingExposure = 0.03;
     containerRef.current.appendChild(renderer.domElement);
     
     // Balanced lighting setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
     directionalLight.position.set(0, 10, 0);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 1024;
@@ -56,7 +56,7 @@ const SimpleModelViewer = () => {
     scene.add(directionalLight);
     
     function createSpotlight(x, y, z, intensity, distance) {
-      const spotLight = new THREE.SpotLight(0xffffff, intensity * 0.3, distance, Math.PI / 6, 0.5);
+      const spotLight = new THREE.SpotLight(0xffffff, intensity, distance, Math.PI / 6, 0.3); // reduce penumbra, keep intensity
       spotLight.position.set(x, y, z);
       spotLight.castShadow = true;
       spotLight.shadow.mapSize.width = 512;
@@ -69,11 +69,11 @@ const SimpleModelViewer = () => {
     const leftWallLights = [];
     const rightWallLights = [];
     for (let i = -15; i <= 15; i += 7.5) {
-      const leftLight = createSpotlight(-10, 5, i, 0.3, 10);
+      const leftLight =createSpotlight(-10, 5, i, 0.5, 10); // Try 0.3 to 0.6
       scene.add(leftLight);
       leftWallLights.push(leftLight);
       
-      const rightLight = createSpotlight(10, 5, i, 0.3, 10);
+      const rightLight = createSpotlight(-10, 5, i, 0.5, 10); // Try 0.3 to 0.6
       scene.add(rightLight);
       rightWallLights.push(rightLight);
     }
@@ -104,79 +104,127 @@ const SimpleModelViewer = () => {
     controls.maxDistance = 50;
     controls.target.set(0, 0, 0);
     
-    // Add raycaster for point-and-click navigation
+    // Setup raycaster for object selection
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     
-    // Navigation marker
-    const markerGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 32);
-    const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.7 });
-    const navigationMarker = new THREE.Mesh(markerGeometry, markerMaterial);
-    navigationMarker.visible = false;
-    scene.add(navigationMarker);
+    // Create a movable object
+    // This is a simple 3D box that can be positioned anywhere with a click
+    const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const material = new THREE.MeshStandardMaterial({ 
+      color: 0x1e88e5, 
+      metalness: 0.5, 
+      roughness: 0.2 
+    });
+    const movableObject = new THREE.Mesh(geometry, material);
+    movableObject.castShadow = true;
+    movableObject.receiveShadow = true;
+    movableObject.position.set(0, 0, 0);
+    scene.add(movableObject);
     
-    // Click handler for navigation
-    function handleNavigation(event) {
-      // Calculate mouse position in normalized device coordinates (-1 to +1)
+    // Movement system variables
+    const velocity = new THREE.Vector3();
+    const targetPosition = new THREE.Vector3();
+    const isMoving = { current: false };
+    const moveSpeed = 2; // Units per second
+    
+    // Camera following variables
+    const cameraOffset = new THREE.Vector3(0, 3, 5);
+    const cameraLerpFactor = 0.1;
+    
+    // Click event handler to set movement target
+    const handleClick = (event) => {
+      event.preventDefault();
+      
+      // Calculate mouse position in normalized device coordinates
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
       
-      // Update the picking ray with the camera and mouse position
+      // Update the raycaster
       raycaster.setFromCamera(mouse, camera);
       
-      // Calculate objects intersecting the picking ray
+      // Find all intersected objects
       const intersects = raycaster.intersectObjects(scene.children, true);
       
-      // Find the first object that was clicked
-      const intersection = intersects[0];
-      
-      if (intersection) {
-        const point = intersection.point;
+      if (intersects.length > 0) {
+        // Get the first intersected object (closest to camera)
+        const intersect = intersects[0];
         
-        // Show marker at intersection point
-        navigationMarker.position.set(point.x, point.y + 0.05, point.z);
-        navigationMarker.visible = true;
+        // Ignore if clicked on the movable object itself
+        if (intersect.object === movableObject) return;
         
-        // Create a temporary target for the camera movement
-        const targetPosition = new THREE.Vector3(point.x, camera.position.y, point.z);
+        // Set target position to move towards
+        targetPosition.copy(intersect.point);
+        isMoving.current = true;
         
-        // Get current position
-        const startPosition = camera.position.clone();
-        const startTarget = controls.target.clone();
-        
-        // Create tweens for smooth camera movement
-        const positionTween = new TWEEN.Tween(startPosition)
-          .to(targetPosition, 1000) // 1000ms = 1 second duration
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .onUpdate(() => {
-            camera.position.copy(startPosition);
-          });
-        
-        const targetTween = new TWEEN.Tween(startTarget)
-          .to(new THREE.Vector3(point.x, 0, point.z), 1000)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .onUpdate(() => {
-            controls.target.copy(startTarget);
-          });
-        
-        // Start the tweens
-        positionTween.start();
-        targetTween.start();
-        
-        // Hide marker after movement completes
-        setTimeout(() => {
-          navigationMarker.visible = false;
-        }, 1500);
+        // Disable orbit controls during movement
+        controls.enabled = false;
       }
-    }
+    };
     
-    renderer.domElement.addEventListener('click', handleNavigation);
+    // Function to update character and camera movement
+    const updateMovement = (deltaTime) => {
+      if (!isMoving.current) return;
+      
+      const currentPos = movableObject.position;
+      
+      // Calculate direction and distance to target
+      const direction = targetPosition.clone().sub(currentPos).normalize();
+      const distanceToTarget = currentPos.distanceTo(targetPosition);
+      
+      // Stop if we've reached the target
+      if (distanceToTarget < 0.1) {
+        isMoving.current = false;
+        controls.enabled = true;
+        return;
+      }
+      
+      // Calculate velocity based on direction and speed
+      velocity.copy(direction).multiplyScalar(moveSpeed * deltaTime);
+      
+      // Limit movement to not overshoot target
+      if (velocity.length() > distanceToTarget) {
+        velocity.copy(direction).multiplyScalar(distanceToTarget);
+      }
+      
+      // Move character
+      currentPos.add(velocity);
+      
+      // Rotate character to face movement direction
+      if (velocity.length() > 0.01) {
+        const angle = Math.atan2(direction.x, direction.z);
+        movableObject.rotation.y = angle;
+      }
+      
+      // Update camera position following the character
+      const characterForward = new THREE.Vector3(0, 0, 1).applyAxisAngle(
+        new THREE.Vector3(0, 1, 0),
+        movableObject.rotation.y
+      );
+      
+      const cameraTarget = currentPos.clone().add(new THREE.Vector3(0, 1.5, 0));
+      const desiredCameraPosition = currentPos.clone()
+        .sub(characterForward.multiplyScalar(5))
+        .add(new THREE.Vector3(0, 3, 0));
+      
+      // Smoothly interpolate camera position
+      camera.position.lerp(desiredCameraPosition, cameraLerpFactor);
+      
+      // Update controls target
+      controls.target.lerp(cameraTarget, cameraLerpFactor);
+      controls.update();
+    };
+    
+    // Add event listener
+    renderer.domElement.addEventListener('click', handleClick);
+    
+
     
     // Add a simple cube as placeholder
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x888888 });
-    const cube = new THREE.Mesh(geometry, material);
+    const placeholderGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const placeholderMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+    const cube = new THREE.Mesh(placeholderGeometry, placeholderMaterial);
     cube.visible = false;
     scene.add(cube);
     
@@ -195,26 +243,11 @@ const SimpleModelViewer = () => {
         model.position.x = 0;
         
         model.traverse((node) => {
-          if (node.isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-            if (node.material) {
-              if (Array.isArray(node.material)) {
-                node.material.forEach(mat => {
-                  mat.metalness = 0.2;
-                  mat.roughness = 0.1;
-                  mat.side = THREE.DoubleSide;
-                  mat.needsUpdate = true;
-                });
-              } else {
-                node.material.metalness = 0.2;
-                node.material.roughness = 0.1;
-                node.material.side = THREE.DoubleSide;
-                node.material.needsUpdate = true;
-              }
-            }
+          if (node.isMesh && node.material.map) {
+            node.material.map.encoding = THREE.sRGBEncoding;
           }
         });
+        
         
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
@@ -244,18 +277,34 @@ const SimpleModelViewer = () => {
     
     window.addEventListener('resize', handleResize);
     
-    const animate = () => {
+    // Time tracking for consistent movement speed
+    let lastTime = 0;
+    
+    const animate = (time) => {
       requestAnimationFrame(animate);
-      TWEEN.update();
-      controls.update();
+      
+      // Calculate delta time for smooth animation
+      const deltaTime = Math.min((time - lastTime) / 1000, 0.1); // Cap to 100ms to prevent large jumps
+      lastTime = time;
+      
+      // Update character and camera movement
+      updateMovement(deltaTime);
+      
+      // Only update controls if not moving
+      if (!isMoving.current) {
+        controls.update();
+      }
+      
       renderer.render(scene, camera);
     };
     
-    animate();
+    // Start animation with timestamp
+    animate(0);
     
     return () => {
       window.removeEventListener('resize', handleResize);
-      renderer.domElement.removeEventListener('click', handleNavigation);
+      renderer.domElement.removeEventListener('click', handleClick);
+
       containerRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
       controls.dispose();
@@ -345,7 +394,7 @@ const SimpleModelViewer = () => {
         fontSize: '12px',
         color: '#666'
       }}>
-        🖱️ Left click to move | 🎯 Scroll to zoom | 🔄 Right click + drag to pan
+        🎯 Scroll to zoom | 🔄 Right click + drag to pan | 👆 Click to smoothly move the blue cube
       </div>
     </div>
   );
