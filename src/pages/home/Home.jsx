@@ -11,7 +11,7 @@ const Home = () => {
     return (
         <div>
             {/* 3D Gallery Section */}
-            <div style={{ 
+            {/* <div style={{ 
                 margin: '20px auto', 
                 maxWidth: '1200px',
                 padding: '0 20px'
@@ -42,7 +42,7 @@ const Home = () => {
                 }}>
                     <p>🖱️ Left click + drag to rotate | 🎯 Scroll to zoom | 🔄 Right click + drag to pan</p>
                 </div>
-            </div>
+            </div> */}
 
             {/* Other Home Components */}
             <HomeVR />
