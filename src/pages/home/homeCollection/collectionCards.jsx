@@ -2,8 +2,8 @@ import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import Cards from "../../../components/cards/cards";
 
-const collectionCards = () => {
-  
+const CollectionCards = () => {
+
   const collectoinData = [
     {
       id: 1,
@@ -40,4 +40,4 @@ const collectionCards = () => {
   );
 };
 
-export default collectionCards;
+export default CollectionCards;

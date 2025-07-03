@@ -1,17 +1,17 @@
 import React from "react";
 import "./homeCollection.css";
-import collectionCards from "./collectionCards";
+import CollectionCards from "./collectionCards";
 const Homecollection = () => {
   return (
     <div className="collectionMain">
       <div className="collectionQuote">
-        “The world of reality has its limits; the world of <br /> imagination is
-        boundless.”
+        “The world of reality has its limits; the world of imagination is
+        boundless.” <br />
         <span className="collectionName"> Jean-Jacques Rousseau </span>
       </div>
       <div className="collectionTitle">Collections</div>
       <div className="mt-3">
-        <collectionCards />
+        <CollectionCards />
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div className="moreBtn">Click For More</div>
