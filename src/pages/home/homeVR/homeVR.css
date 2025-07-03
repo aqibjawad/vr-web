@@ -1,6 +1,6 @@
 .vrMain {
     background-color: #121212;
-    padding: 4rem 2rem; /* Proper spacing */
+    padding: 0rem 2rem; /* Proper spacing */
     min-height: 300px;
     display: flex;
     flex-direction: column;
@@ -11,10 +11,10 @@
 
 .homeVRhead {
   color: white;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   text-align: center;
   font-weight: 600;
-  font-size: 40px;
+  font-size: 25px;
   line-height: 50px;
   margin-top: 5rem;
 }
@@ -26,7 +26,7 @@
   text-align: center;
   font-weight: 600;
   font-size: 40px;
-  margin-top: 2rem;
+  margin-top: 1rem;
   line-height: 36px;
   
   /* Algerian-style 3D Font Effects */
@@ -116,7 +116,7 @@
 
 .vrQuote {
   font-weight: 500;
-  font-size: 28px;
+  font-size: 32px;
   line-height: 37px;
   letter-spacing: 4%;
   text-align: center;
@@ -131,8 +131,4 @@
   letter-spacing: 4%;
   text-align: center;
   color: #FFA218;
-}
-
-.vr-card {
-  background-color: #1A1A1A !important;
 }

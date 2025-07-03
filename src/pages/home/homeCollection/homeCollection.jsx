@@ -1,6 +1,6 @@
 import React from "react";
 import "./homeCollection.css";
-import HallGallery from "./collectionCards";
+import collectionCards from "./collectionCards";
 const Homecollection = () => {
   return (
     <div className="collectionMain">
@@ -11,7 +11,7 @@ const Homecollection = () => {
       </div>
       <div className="collectionTitle">Collections</div>
       <div className="mt-3">
-        <HallGallery />
+        <collectionCards />
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div className="moreBtn">Click For More</div>

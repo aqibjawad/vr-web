@@ -1,9 +1,9 @@
 import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
-import "./homeArtist.css";
+import Cards from "../../../components/cards/cards";
 
 const ArtistCards = () => {
-  const halls = [
+  const artistsData = [
     {
       id: 1,
       bgColor: "bg-slate",
@@ -31,31 +31,15 @@ const ArtistCards = () => {
   ];
 
   return (
-    <div>
-      <Row className="mt-5">
-        {halls.map((hall) => (
-          <Col key={hall.id} xs={12} md={6} lg={3}>
-            <Card className={`artist-card`} style={{ border: "none" }}>
-              <div className="artist-card-image-container">
-                <Card.Img
-                  variant="top"
-                  src={hall.image}
-                  className="artist-card-img"
-                  style={{ border: "none", outline: "none" }}
-                />
-                <div className="artist-card-overlay" />
-              </div>
-              <Card.Body className="text-left text-white">
-                <Card.Title className="artist-card-title">
-                  {hall.name}
-                </Card.Title>
-                <div className="artist-card-line mx-auto"></div>
-              </Card.Body>
-            </Card>
+    <Container>
+      <Row className="gy-4  mt-5">
+        {artistsData.map((artists) => (
+          <Col key={artists.id} xs={12} md={6} lg={3}>
+            <Cards data={artists} />
           </Col>
         ))}
       </Row>
-    </div>
+    </Container>
   );
 };
 

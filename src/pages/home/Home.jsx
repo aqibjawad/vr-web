@@ -47,8 +47,8 @@ const Home = () => {
             {/* Other Home Components */}
             <HomeVR />
             <HomeAR />
-            <HomeArtist />
             <Homecollection />
+            <HomeArtist />
             <Homehandi />
             <Homegift />
         </div>

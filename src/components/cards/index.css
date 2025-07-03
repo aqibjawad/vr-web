@@ -1,0 +1,10 @@
+.cards {
+  background-color: #1a1a1a !important;
+}
+
+.cards-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Image ko crop kar ke fit karega */
+  object-position: center; /* Center se crop karega */
+}
