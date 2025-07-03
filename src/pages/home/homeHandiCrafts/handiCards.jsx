@@ -1,9 +1,9 @@
 import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
-import "./homehandi.css"; // custom CSS file
+import Cards from "../../../components/cards/cards";
 
 const HandiCards = () => {
-  const halls = [
+  const handiCrafts = [
     {
       id: 1,
       name: "HALL I",
@@ -29,24 +29,9 @@ const HandiCards = () => {
   return (
     <Container>
       <Row className="gy-4 mt-5">
-        {halls.map((hall) => (
-          <Col key={hall.id} xs={12} md={6} lg={3}>
-            <Card className={`handi-card`}>
-              <div className="handi-card-image-container">
-                <Card.Img
-                  variant="top"
-                  src={hall.image}
-                  className="handi-card-img"
-                />
-                <div className="handi-card-overlay" />
-              </div>
-              <Card.Body className="text-center text-white">
-                <Card.Title className="handi-card-title">
-                  {hall.name}
-                </Card.Title>
-                <div className="handi-card-line mx-auto"></div>
-              </Card.Body>
-            </Card>
+        {handiCrafts.map((handicrafts) => (
+          <Col key={handicrafts.id} xs={12} md={6} lg={3}>
+            <Cards data={handicrafts} />
           </Col>
         ))}
       </Row>
