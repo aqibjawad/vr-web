@@ -8,23 +8,23 @@ const CollectionCards = () => {
     {
       id: 1,
       name: "Seascape",
-      image: "/collect1.png",
+      image: "/5.png",
     },
     {
       id: 2,
       name: "Realism",
-      image: "/collect2.png",
+      image: "/34.png",
     },
-    {
-      id: 3,
-      name: "Avant Gard",
-      image: "/collect2.png",
-    },
-    {
-      id: 4,
-      name: "Avant Gard",
-      image: "/collect2.png",
-    },
+    // {
+    //   id: 3,
+    //   name: "Avant Gard",
+    //   image: "/38.png",
+    // },
+    // {
+    //   id: 4,
+    //   name: "Avant Gard",
+    //   image: "/33.png",
+    // },
   ];
 
   return (

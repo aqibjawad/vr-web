@@ -7,22 +7,22 @@ const ARCards = () => {
     {
       id: 1,
       bgColor: "bg-slate",
-      image: "/ar1.png",
+      image: "/10.png",
     },
     {
       id: 2,
       bgColor: "bg-gray",
-      image: "/ar2.png",
+      image: "/32.png",
     },
     {
       id: 3,
       bgColor: "bg-zinc",
-      image: "/ar3.png",
+      image: "/40.png",
     },
     {
       id: 4,
       bgColor: "bg-zinc",
-      image: "/ar4.png",
+      image: "/47.png",
     },
   ];
 

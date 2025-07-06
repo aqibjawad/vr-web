@@ -8,26 +8,26 @@ const ArtistCards = () => {
       id: 1,
       bgColor: "bg-slate",
       name: "Seascape",
-      image: "/artist1.png",
+      image: "/38.png",
     },
     {
       id: 2,
       bgColor: "bg-gray",
       name: "Seascape",
-      image: "/artist1.png",
+      image: "/33.png",
     },
-    {
-      id: 3,
-      bgColor: "bg-zinc",
-      name: "Seascape",
-      image: "/artist1.png",
-    },
-    {
-      id: 4,
-      bgColor: "bg-zinc",
-      name: "Seascape",
-      image: "/artist1.png",
-    },
+    // {
+    //   id: 3,
+    //   bgColor: "bg-zinc",
+    //   name: "Seascape",
+    //   image: "/artist1.png",
+    // },
+    // {
+    //   id: 4,
+    //   bgColor: "bg-zinc",
+    //   name: "Seascape",
+    //   image: "/artist1.png",
+    // },
   ];
 
   return (

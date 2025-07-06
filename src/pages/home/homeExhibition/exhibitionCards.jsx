@@ -2,18 +2,18 @@ import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import Cards from "../../../components/cards/cards";
 
-const FeaturedCards = () => {
-  const giftsData = [
+const ExhibitionCards = () => {
+  const exhibitionData = [
     {
       id: 1,
-      name: "Gift 1",
-      image: "/45.png",
-    },
-    {
-      id: 2,
-      name: "Gift 2",
+      name: "Exhibition 1",
       image: "/46.png",
     },
+    // {
+    //   id: 2,
+    //   name: "Gift 2",
+    //   image: "/gift1.png",
+    // },
     // {
     //   id: 2,
     //   name: "Gift 3",
@@ -23,14 +23,15 @@ const FeaturedCards = () => {
     //   id: 2,
     //   name: "Gift 4",
     //   image: "/gift1.png",
-    // },
+    // }
+    
   ];
 
   return (
     <Container>
       <Row className="gy-4 mt-5">
-        {giftsData.map((gifts) => (
-          <Col key={gifts.id} xs={12} md={6} lg={6}>
+        {exhibitionData.map((gifts) => (
+          <Col key={gifts.id} xs={12} md={12} lg={12}>
             <Cards data={gifts} />
           </Col>
         ))}
@@ -39,4 +40,4 @@ const FeaturedCards = () => {
   );
 };
 
-export default FeaturedCards;
+export default ExhibitionCards;

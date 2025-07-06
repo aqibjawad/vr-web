@@ -7,23 +7,23 @@ const HandiCards = () => {
     {
       id: 1,
       name: "HALL I",
-      image: "/handi1.png",
+      image: "/42.png",
     },
     {
       id: 2,
       name: "HALL II",
-      image: "/handi2.png",
+      image: "/41.png",
     },
-    {
-      id: 3,
-      name: "HALL III",
-      image: "/handi3.png",
-    },
-    {
-      id: 4,
-      name: "HALL IV",
-      image: "/handi4.png",
-    },
+    // {
+    //   id: 3,
+    //   name: "HALL III",
+    //   image: "/handi3.png",
+    // },
+    // {
+    //   id: 4,
+    //   name: "HALL IV",
+    //   image: "/handi4.png",
+    // },
   ];
 
   return (

@@ -6,6 +6,7 @@ import Homecollection from './homeCollection/homeCollection.jsx';
 import Homehandi from "./homeHandiCrafts/homeHandi.jsx";
 import Homegift from './homeGifts/homeGift.jsx';
 import Homefeatured from "./homeFeatured/homefeatured.jsx"
+import HomeExhibition from './homeExhibition/homeExhibition.jsx';
 import SimpleModelViewer from '../../components/three-js/SimpleModelViewer';
 
 const Home = () => {
@@ -53,6 +54,7 @@ const Home = () => {
             <Homehandi />
             <Homegift />
             <Homefeatured />
+            <HomeExhibition />
         </div>
     );
 };

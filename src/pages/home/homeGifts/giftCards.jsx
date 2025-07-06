@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import Cards from "../../../components/cards/cards";
 
 const GiftCards = () => {
@@ -7,23 +7,23 @@ const GiftCards = () => {
     {
       id: 1,
       name: "Gift 1",
-      image: "/gift4.png",
+      image: "/43.png",
     },
     {
       id: 2,
       name: "Gift 2",
-      image: "/gift1.png",
+      image: "/44.png",
     },
-    {
-      id: 3,
-      name: "Gift 3",
-      image: "/gift2.png",
-    },
-    {
-      id: 4,
-      name: "Gift 4",
-      image: "/gift3.png",
-    },
+    // {
+    //   id: 3,
+    //   name: "Gift 3",
+    //   image: "/gift2.png",
+    // },
+    // {
+    //   id: 4,
+    //   name: "Gift 4",
+    //   image: "/gift3.png",
+    // },
   ];
 
   return (
