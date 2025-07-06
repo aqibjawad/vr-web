@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import Cards from "../../../components/cards/cards";
 
-const GiftCards = () => {
+const FeaturedCards = () => {
   const giftsData = [
     {
       id: 1,
@@ -15,19 +15,19 @@ const GiftCards = () => {
       image: "/gift1.png",
     },
     {
-      id: 3,
+      id: 2,
       name: "Gift 3",
-      image: "/gift2.png",
+      image: "/gift1.png",
     },
     {
-      id: 4,
+      id: 2,
       name: "Gift 4",
-      image: "/gift3.png",
+      image: "/gift1.png",
     },
   ];
 
   return (
-    <div>
+    <Container>
       <Row className="gy-4 mt-5">
         {giftsData.map((gifts) => (
           <Col key={gifts.id} xs={12} md={6} lg={6}>
@@ -35,8 +35,8 @@ const GiftCards = () => {
           </Col>
         ))}
       </Row>
-    </div>
+    </Container>
   );
 };
 
-export default GiftCards;
+export default FeaturedCards;
