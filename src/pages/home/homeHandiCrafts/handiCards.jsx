@@ -6,12 +6,22 @@ const HandiCards = () => {
   const handiCrafts = [
     {
       id: 1,
-      name: "HALL I",
+      name: "Handicrafts I",
       image: "/42.png",
     },
     {
       id: 2,
-      name: "HALL II",
+      name: "Handicrafts II",
+      image: "/41.png",
+    },
+    {
+      id: 3,
+      name: "Handicrafts III",
+      image: "/41.png",
+    },
+    {
+      id: 4,
+      name: "Handicrafts IV",
       image: "/41.png",
     },
     // {

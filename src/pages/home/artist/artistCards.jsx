@@ -16,6 +16,18 @@ const ArtistCards = () => {
       name: "Seascape",
       image: "/33.png",
     },
+    {
+      id: 3,
+      bgColor: "bg-slate",
+      name: "Seascape",
+      image: "/38.png",
+    },
+    {
+      id: 4,
+      bgColor: "bg-gray",
+      name: "Seascape",
+      image: "/33.png",
+    },
     // {
     //   id: 3,
     //   bgColor: "bg-zinc",

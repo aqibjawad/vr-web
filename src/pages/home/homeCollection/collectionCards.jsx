@@ -3,7 +3,6 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 import Cards from "../../../components/cards/cards";
 
 const CollectionCards = () => {
-
   const collectoinData = [
     {
       id: 1,
@@ -15,16 +14,16 @@ const CollectionCards = () => {
       name: "Realism",
       image: "/34.png",
     },
-    // {
-    //   id: 3,
-    //   name: "Avant Gard",
-    //   image: "/38.png",
-    // },
-    // {
-    //   id: 4,
-    //   name: "Avant Gard",
-    //   image: "/33.png",
-    // },
+    {
+      id: 3,
+      name: "Avant Gard",
+      image: "/34.png",
+    },
+    {
+      id: 4,
+      name: "Avant Gard",
+      image: "/34.png",
+    },
   ];
 
   return (

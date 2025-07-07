@@ -10,20 +10,18 @@ const VRCards = () => {
       bgColor: "bg-slate",
       image: "hall1.jpg",
     },
-    // {
-    //   id: 2,
-    //   name: "HALL II",
-    //   bgColor: "bg-gray",
-    //   image:
-    //     "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?w=400&h=300&fit=crop&auto=format",
-    // },
-    // {
-    //   id: 3,
-    //   name: "HALL III",
-    //   bgColor: "bg-zinc",
-    //   image:
-    //     "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop&auto=format",
-    // }
+    {
+      id: 2,
+      name: "HALL II",
+      bgColor: "bg-slate",
+      image: "hall1.jpg",
+    },
+    {
+      id: 3,
+      name: "HALL III",
+      bgColor: "bg-slate",
+      image: "hall1.jpg",
+    },
   ];
 
   return (
