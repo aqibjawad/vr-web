@@ -3,26 +3,15 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 import Cards from "../../../components/cards/cards";
 
 const VRCards = () => {
-  const cardsData = [
-    {
-      id: 1,
-      name: "HALL I",
+  const cardsData = Array.from({ length: 3 }, (_, index) => {
+    const hallNumber = index + 1;
+    return {
+      id: hallNumber,
+      name: `HALL ${hallNumber}`,
       bgColor: "bg-slate",
-      image: "hall1.jpg",
-    },
-    {
-      id: 2,
-      name: "HALL II",
-      bgColor: "bg-slate",
-      image: "hall1.jpg",
-    },
-    {
-      id: 3,
-      name: "HALL III",
-      bgColor: "bg-slate",
-      image: "hall1.jpg",
-    },
-  ];
+      image: "hall1.jpg", // Use hall1.jpg as a placeholder for all halls
+    };
+  });
 
   return (
     <Container>

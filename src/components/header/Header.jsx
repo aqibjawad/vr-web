@@ -13,8 +13,10 @@ const Header = () => {
       {/* First Line: Logo and Search Bar with Cart */}
       <div className="header-container">
         <div className="logo-section">
-          <div className="logo">LOGO</div>
-          <div className="brand-name">ARTIFACT</div>
+          <div>
+            <img style={{height:"100px", width:"100px"}} src="/logo2.png" />
+          </div>
+          <div className="brand-name">ARTIFACT AUTHENTIC ART</div>
         </div>
         
         {/* Search Bar and Cart Icon grouped together */}

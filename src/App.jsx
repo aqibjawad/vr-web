@@ -1,29 +1,73 @@
-import React, { useState } from "react";
-import Header from "./components/header/Header";
-import Footer from "./components/footer/Footer";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Outlet,
+} from "react-router-dom";
+
+import WebsiteLayout from "./layout/websiteLayout";
+import routes from "./routes/routes";
+
 import Home from "./pages/home/Home";
-import IntroAnimation from "./pages/intro/intro"; // <-- Import animation
+import AR from "./pages/ar/index";
 
 const App = () => {
-  const [showIntro, setShowIntro] = useState(true);
-
-  const handleAnimationComplete = () => {
-    setShowIntro(false);
-  };
-
   return (
     <div className="app-container">
-      {showIntro ? (
-        <IntroAnimation onComplete={handleAnimationComplete} />
-      ) : (
-        <>
-          <Header />
-          <main className="main-content">
-            <Home />
-          </main>
-          <Footer />
-        </>
-      )}
+      <Router>
+        <Routes>
+          {/* First, render all public routes */}
+          <Route
+            element={
+              <WebsiteLayout>
+                <Outlet />
+              </WebsiteLayout>
+            }
+          >
+            {routes.map(
+              (route) =>
+                route.type === "public" && (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={route.element}
+                  />
+                )
+            )}
+          </Route>
+
+          {/* Then, render private routes with protection */}
+          {/* <Route
+            element={
+              <AuthorizedLayout>
+                <Outlet />
+              </AuthorizedLayout>
+            }
+          >
+            {routes.map(
+              (route) =>
+                route.type === "private" && (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={
+                      isAuthenticated ? (
+                        route.element
+                      ) : (
+                        <Navigate
+                          to="/login"
+                          state={{ from: route.path }}
+                          replace
+                        />
+                      )
+                    }
+                  />
+                )
+            )}
+          </Route> */}
+        </Routes>
+      </Router>
     </div>
   );
 };
