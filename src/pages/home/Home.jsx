@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import IntroAnimation from "../intro/intro";
 import HomeVR from './homeVR/homeVR';
 import HomeAR from './homeAR/homeAR.jsx';
@@ -12,10 +12,16 @@ import HomeAuction from "../home/homeAuction/homeAuction.jsx";
 import ArtGalleryFilter from "../home/homeTable/index.jsx";
 
 const Home = () => {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(() => {
+    // Check if intro has been shown in this session
+    const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
+    return !hasSeenIntro; // Show intro only if not seen in this session
+  });
 
   const handleAnimationComplete = () => {
     setShowIntro(false);
+    // Mark that intro has been seen in this session
+    sessionStorage.setItem('hasSeenIntro', 'true');
   };
 
   return (

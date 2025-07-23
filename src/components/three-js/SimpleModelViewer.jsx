@@ -19,12 +19,12 @@ const SimpleModelViewer = () => {
     
     // Create camera
     const camera = new THREE.PerspectiveCamera(
-      35, // Wider field of view
+      60, // More natural field of view to prevent ceiling appearing too close
       containerRef.current.clientWidth / containerRef.current.clientHeight, // aspect ratio
       0.1, // near
       1000 // far
     );
-    camera.position.set(0, 1.2, 8); // Lower and closer perspective
+    camera.position.set(0, 1.6, 8); // Position camera at back of room with good view of center
     
     // Create renderer with improved settings
     const renderer = new THREE.WebGLRenderer({ 
@@ -40,14 +40,14 @@ const SimpleModelViewer = () => {
     // Use newer encoding settings for better stability
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping; // More stable tone mapping
-    renderer.toneMappingExposure = 0.03; // More reasonable exposure value
+    renderer.toneMappingExposure = 0.01; // More reasonable exposure value
     containerRef.current.appendChild(renderer.domElement);
     
-    // Balanced lighting setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+    // Warmer, softer lighting setup to match room ambiance
+    const ambientLight = new THREE.AmbientLight(0xf5f5dc, 0.08); // Warm beige ambient light, further reduced intensity
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
+    const directionalLight = new THREE.DirectionalLight(0xfff8dc, 0.08); // Warm cornsilk color, further reduced intensity
     directionalLight.position.set(0, 10, 0);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048; // Increased resolution
@@ -59,7 +59,7 @@ const SimpleModelViewer = () => {
     scene.add(directionalLight);
     
     function createSpotlight(x, y, z, intensity, distance) {
-      const spotLight = new THREE.SpotLight(0xffffff, intensity, distance, Math.PI / 6, 0.3); // reduce penumbra, keep intensity
+      const spotLight = new THREE.SpotLight(0xfff8dc, intensity, distance, Math.PI / 6, 0.3); // Warm cornsilk color
       spotLight.position.set(x, y, z);
       spotLight.castShadow = true;
       spotLight.shadow.mapSize.width = 512;
@@ -72,16 +72,16 @@ const SimpleModelViewer = () => {
     const leftWallLights = [];
     const rightWallLights = [];
     for (let i = -15; i <= 15; i += 7.5) {
-      const leftLight =createSpotlight(-10, 5, i, 0.5, 10); // Try 0.3 to 0.6
+      const leftLight =createSpotlight(-10, 5, i, 0.05, 10); // Minimal intensity for very subtle wall object lighting
       scene.add(leftLight);
       leftWallLights.push(leftLight);
       
-      const rightLight = createSpotlight(-10, 5, i, 0.5, 10); // Try 0.3 to 0.6
+      const rightLight = createSpotlight(-10, 5, i, 0.05, 10); // Minimal intensity for very subtle wall object lighting
       scene.add(rightLight);
       rightWallLights.push(rightLight);
     }
     
-    const fillLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.05);
+    const fillLight = new THREE.HemisphereLight(0xfff8dc, 0xf5deb3, 0.01); // Warm colors, minimal intensity
     scene.add(fillLight);
     
     // Add floor with more stable rendering properties
@@ -100,45 +100,75 @@ const SimpleModelViewer = () => {
     floor.renderOrder = -1;
     scene.add(floor);
     
-    // Add controls
+    // Add controls with restricted movement
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 1.5;
+    controls.maxPolarAngle = Math.PI / 2.2; // Restrict vertical rotation
+    controls.minPolarAngle = Math.PI / 3; // Restrict vertical rotation
     controls.minDistance = 0.5;
-    controls.maxDistance = 50;
-    controls.target.set(0, 0, 0);
+    controls.maxDistance = 8; // Limit zoom out to stay in room
+    controls.enableZoom = true; // Allow limited zoom
+    controls.enableRotate = true; // Allow rotation but limited
+    controls.enablePan = false; // Disable panning to prevent leaving room
+    controls.target.set(0, 0, 0); // Look down at center of gallery
     
     // Setup raycaster for object selection with improved precision
     const raycaster = new THREE.Raycaster();
     raycaster.params.Line.threshold = 0.1; // Improve precision
     const mouse = new THREE.Vector2();
     
-    // Create a movable object
-    // This is a simple 3D box that can be positioned anywhere with a click
-    const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    const material = new THREE.MeshStandardMaterial({ 
-      color: 0x1e88e5, 
-      metalness: 0.5, 
-      roughness: 0.2 
+    // Create a simple white box indicator with dark ring (matching user's image)
+    // This is a minimalistic indicator object that can be positioned anywhere with a click
+    const indicatorGroup = new THREE.Group();
+    
+    // Simple white rectangular box (like in the user's image) - made narrower
+    const boxGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.15);
+    const boxMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0xFFFFFF, // Pure white
+      metalness: 0.1, 
+      roughness: 0.8 
     });
-    const movableObject = new THREE.Mesh(geometry, material);
-    movableObject.castShadow = true;
-    movableObject.receiveShadow = true;
-    movableObject.position.set(0, 0, 0);
+    const whiteBox = new THREE.Mesh(boxGeometry, boxMaterial);
+    whiteBox.position.set(0, 0.075, 0); // Lift it slightly above the ring
+    whiteBox.castShadow = true;
+    whiteBox.receiveShadow = true;
+    indicatorGroup.add(whiteBox);
+    
+    // Dark circular ring around the box (matching user's image)
+    const ringGeometry = new THREE.RingGeometry(0.25, 0.3, 32);
+    const ringMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x333333, // Dark gray/black ring
+      metalness: 0.2,
+      roughness: 0.9
+    });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.rotation.x = -Math.PI / 2; // Lay flat on ground
+    ring.position.set(0, 0.001, 0); // Slightly above floor to avoid z-fighting
+    ring.receiveShadow = true;
+    indicatorGroup.add(ring);
+    
+    const movableObject = indicatorGroup;
+    movableObject.position.set(0, 0.075, 2); // Position on floor, visible from camera
+    movableObject.visible = false; // Hide the indicator object while keeping functionality
     scene.add(movableObject);
     
     // Movement system variables
     const velocity = new THREE.Vector3();
     const targetPosition = new THREE.Vector3();
+    const targetRotation = { current: 0 }; // Target Y rotation to face painting
     const isMoving = { current: false };
-    const moveSpeed = 2; // Units per second
+    const moveSpeed = 1; // Units per second (slightly increased from 0.5)
+    const rotationSpeed = 1; // Radians per second (slightly increased from 0.5)
     
     // Camera following variables
-    const cameraOffset = new THREE.Vector3(0, 3, 5);
+    const cameraOffset = new THREE.Vector3(0, 1.5, 3);
     const cameraLerpFactor = 0.1;
+    const targetCameraPosition = new THREE.Vector3();
+    const targetCameraLookAt = new THREE.Vector3();
+    const isCameraMoving = { current: false };
     
-    // Click event handler to set movement target
+    // Click event handler to move indicator to paintings only
     const handleClick = (event) => {
       event.preventDefault();
       
@@ -158,42 +188,110 @@ const SimpleModelViewer = () => {
         const intersect = intersects[0];
         
         // Ignore if clicked on the movable object itself
-        if (intersect.object === movableObject) return;
+        if (intersect.object === movableObject || 
+            intersect.object.parent === movableObject) return;
         
-        // Determine if the clicked object is a wall (not floor or ceiling)
+        // Simplified painting detection - exclude only floor and indicator object
         const normal = intersect.face.normal.clone();
-        // Transform the normal to world space
         normal.transformDirection(intersect.object.matrixWorld);
         
-        // Calculate the absolute value of the Y component of the normal
         const absNormalY = Math.abs(normal.y);
         
-        // If absNormalY is close to 1, it's likely a floor or ceiling
-        // (normal pointing up or down)
+        // Only ignore floor/ceiling clicks (Y-dominant normal pointing up/down)
         if (absNormalY > 0.8) {
-          // This is floor or ceiling, do not move
           console.log('Clicked on floor/ceiling, not moving');
           return;
         }
         
-        // It's a wall, proceed with movement
-        // Calculate direction from the intersection to the camera (viewing direction)
-        // This ensures we're moving away from the wall, not into it
-        const viewDirection = new THREE.Vector3().subVectors(camera.position, intersect.point).normalize();
+        // Check if this is a wall-mounted object/painting or just an empty wall
+        // Look for objects that are likely paintings or decorative items
+        const clickedObject = intersect.object;
+        const isWallMountedObject = clickedObject.name && 
+          (clickedObject.name.toLowerCase().includes('painting') ||
+           clickedObject.name.toLowerCase().includes('frame') ||
+           clickedObject.name.toLowerCase().includes('art') ||
+           clickedObject.name.toLowerCase().includes('picture') ||
+           clickedObject.name.toLowerCase().includes('vase') ||
+           clickedObject.name.toLowerCase().includes('sculpture') ||
+           clickedObject.material?.map || // Has texture (likely a painting)
+           clickedObject.geometry?.type === 'PlaneGeometry'); // Flat plane (likely a painting)
         
-        // Calculate dot product to determine if we need to flip the normal
-        const dot = viewDirection.dot(intersect.face.normal);
+        if (isWallMountedObject) {
+          // It's a painting/object on a wall, move indicator to stand in front of it
+          console.log('Moving to painting/object at:', intersect.point);
+        } else {
+          // It's an empty wall, return to room center
+          console.log('Clicked on empty wall, returning to center');
+          
+          // Set target position to room center
+          const roomCenter = new THREE.Vector3(0, 1.4, 0); // Center at eye level
+          targetPosition.copy(roomCenter);
+          
+          // Face towards the front wall (positive Z direction)
+          // In Three.js, rotation.y = 0 means facing positive Z (front wall)
+          targetRotation.current = 0;
+          
+          // Set camera to follow the indicator back to center
+          const cameraHeight = 1.5;
+          // Position camera behind the indicator, looking towards front wall
+          const cameraPos = roomCenter.clone().add(new THREE.Vector3(0, cameraHeight - 1.4, -3)); // Behind indicator
+          targetCameraPosition.copy(cameraPos);
+          targetCameraLookAt.copy(new THREE.Vector3(0, 1.4, 5)); // Look towards front wall (positive Z)
+          
+          isMoving.current = true;
+          isCameraMoving.current = true;
+          controls.enabled = false;
+          
+          return; // Skip the painting positioning logic
+        }
         
-        // If dot product is negative, the normal is facing away from the camera
-        // We need to use either the face normal or its opposite based on camera position
-        const offsetDirection = dot < 0 ? 
-            intersect.face.normal.clone().negate() : // Flip if facing away from camera
-            intersect.face.normal.clone(); // Use as is if facing camera
+        // Calculate position in front of the painting
+        // Use a more reliable method to determine offset direction
         
-        // Create a target position that's 10cm (0.1 units) away from the intersection point
-        // along the correct direction (away from the wall)
-        targetPosition.copy(intersect.point).addScaledVector(offsetDirection, 0.1);
+        // Calculate direction from room center to the intersection point
+        const roomCenter = new THREE.Vector3(0, 0, 0);
+        const directionFromCenter = intersect.point.clone().sub(roomCenter).normalize();
+        
+        // Use the wall normal, but ensure it points into the room (toward center)
+        let offsetDirection = normal.clone();
+        
+        // If normal is pointing away from room center, flip it
+        if (offsetDirection.dot(directionFromCenter) > 0) {
+          offsetDirection.negate();
+        }
+        
+        // Position indicator at optimal distance from the painting for good viewing
+        const viewingDistance = 2.0;
+        const targetPos = intersect.point.clone().add(offsetDirection.multiplyScalar(viewingDistance));
+        
+        // Set Y to floor level (indicator should be on ground)
+        targetPos.y = 1.4; // Keep at eye level for visibility
+        
+        // Apply room boundary enforcement
+        targetPosition.copy(enforceRoomBoundaries(targetPos));
+        
+        // Calculate rotation to face the painting
+        // Direction from indicator position to painting
+        const directionToPainting = intersect.point.clone().sub(targetPos).normalize();
+        // Calculate Y rotation angle to face the painting
+        targetRotation.current = Math.atan2(directionToPainting.x, directionToPainting.z);
+        
+        // Calculate camera position to match the same distance as indicator object
+        // Camera should be at the same viewingDistance from painting as the indicator
+        const cameraHeight = 1.5; // Height above ground (eye level)
+        
+        // Position camera at the same distance from painting as the indicator object
+        // This ensures consistent viewing distance for both indicator and camera
+        const cameraPos = intersect.point.clone()
+          .add(offsetDirection.clone().multiplyScalar(viewingDistance)); // Same distance as indicator
+        cameraPos.y = cameraHeight;
+        
+        // Set camera targets
+        targetCameraPosition.copy(cameraPos);
+        targetCameraLookAt.copy(intersect.point); // Look at the painting
+        
         isMoving.current = true;
+        isCameraMoving.current = true;
         
         // Disable orbit controls during movement
         controls.enabled = false;
@@ -202,20 +300,24 @@ const SimpleModelViewer = () => {
     
     // Define room boundaries (adjust values based on your room size)
     const roomBoundaries = {
-      minX: -10, // Left wall
-      maxX: 10,  // Right wall
-      minZ: -15, // Back wall
-      maxZ: 15,  // Front wall
-      buffer: 0.2 // Keep object slightly away from walls
+      minX: -9, // Left wall (moved inward for more safety)
+      maxX: 9,  // Right wall (moved inward for more safety)
+      minZ: -14, // Back wall (moved inward for more safety)
+      maxZ: 14,  // Front wall (moved inward for more safety)
+      buffer: 0.5 // Increased buffer to keep further from walls
     };
     
     // Function to check and adjust position to stay within room boundaries
     const enforceRoomBoundaries = (position) => {
-      // Apply buffer to keep the object slightly away from walls
+      // Apply strict enforcement of boundaries with increased buffer
       position.x = Math.max(roomBoundaries.minX + roomBoundaries.buffer, 
                          Math.min(roomBoundaries.maxX - roomBoundaries.buffer, position.x));
       position.z = Math.max(roomBoundaries.minZ + roomBoundaries.buffer, 
                          Math.min(roomBoundaries.maxZ - roomBoundaries.buffer, position.z));
+                         
+      // Add y-axis constraint to prevent flying or sinking
+      position.y = 1.4; // Keep object at human eye level
+                         
       return position;
     };
     
@@ -229,52 +331,109 @@ const SimpleModelViewer = () => {
       const direction = targetPosition.clone().sub(currentPos).normalize();
       const distanceToTarget = currentPos.distanceTo(targetPosition);
       
-      // Stop if we've reached the target or very close to it (within 0.05 units)
-      if (distanceToTarget < 0.05) {
+      // Calculate rotation difference to target
+      const currentRotation = movableObject.rotation.y;
+      const rotationDifference = targetRotation.current - currentRotation;
+      
+      // Normalize rotation difference to [-π, π]
+      let normalizedRotDiff = rotationDifference;
+      while (normalizedRotDiff > Math.PI) normalizedRotDiff -= 2 * Math.PI;
+      while (normalizedRotDiff < -Math.PI) normalizedRotDiff += 2 * Math.PI;
+      
+      // Calculate camera movement if needed
+      let cameraDistanceToTarget = 0;
+      if (isCameraMoving.current) {
+        cameraDistanceToTarget = camera.position.distanceTo(targetCameraPosition);
+      }
+      
+      // Stop if we've reached both position, rotation, and camera targets
+      const rotationThreshold = 0.05; // Small angle threshold
+      const cameraThreshold = 0.1; // Camera position threshold
+      const indicatorReady = distanceToTarget < 0.05 && Math.abs(normalizedRotDiff) < rotationThreshold;
+      const cameraReady = !isCameraMoving.current || cameraDistanceToTarget < cameraThreshold;
+      
+      if (indicatorReady && cameraReady) {
         isMoving.current = false;
+        isCameraMoving.current = false;
         controls.enabled = true;
         return;
       }
       
-      // Calculate velocity based on direction and speed
-      velocity.copy(direction).multiplyScalar(moveSpeed * deltaTime);
-      
-      // Limit movement to not overshoot target
-      if (velocity.length() > distanceToTarget) {
-        velocity.copy(direction).multiplyScalar(distanceToTarget);
+      // Update position if not at target
+      if (distanceToTarget >= 0.05) {
+        // Calculate velocity based on direction and speed
+        velocity.copy(direction).multiplyScalar(moveSpeed * deltaTime);
+        
+        // Limit movement to not overshoot target
+        if (velocity.length() > distanceToTarget) {
+          velocity.copy(direction).multiplyScalar(distanceToTarget);
+        }
+        
+        // Calculate new position
+        const newPosition = currentPos.clone().add(velocity);
+        
+        // Enforce room boundaries before applying movement
+        enforceRoomBoundaries(newPosition);
+        
+        // Update position
+        currentPos.copy(newPosition);
       }
       
-      // Calculate new position
-      const newPosition = currentPos.clone().add(velocity);
-      
-      // Enforce room boundaries before applying movement
-      enforceRoomBoundaries(newPosition);
-      
-      // Update position
-      currentPos.copy(newPosition);
-      
-      // Rotate character to face movement direction
-      if (velocity.length() > 0.01) {
-        const angle = Math.atan2(direction.x, direction.z);
-        movableObject.rotation.y = angle;
+      // Update rotation to face painting
+      if (Math.abs(normalizedRotDiff) >= rotationThreshold) {
+        const rotationStep = Math.sign(normalizedRotDiff) * Math.min(Math.abs(normalizedRotDiff), rotationSpeed * deltaTime);
+        movableObject.rotation.y += rotationStep;
       }
       
-      // Update camera position following the character
-      const characterForward = new THREE.Vector3(0, 0, 1).applyAxisAngle(
-        new THREE.Vector3(0, 1, 0),
-        movableObject.rotation.y
-      );
+      // Update camera position for painting viewing
+      if (isCameraMoving.current) {
+        // Move camera at the same speed as the indicator object
+        const currentCameraPos = camera.position;
+        const cameraDirection = targetCameraPosition.clone().sub(currentCameraPos).normalize();
+        const cameraDistanceToTarget = currentCameraPos.distanceTo(targetCameraPosition);
+        
+        // Move camera at same speed as indicator object
+        if (cameraDistanceToTarget >= 0.05) {
+          const cameraVelocity = cameraDirection.multiplyScalar(moveSpeed * deltaTime);
+          
+          // Limit movement to not overshoot target
+          if (cameraVelocity.length() > cameraDistanceToTarget) {
+            cameraVelocity.copy(cameraDirection).multiplyScalar(cameraDistanceToTarget);
+          }
+          
+          camera.position.add(cameraVelocity);
+        }
+        
+        // Smoothly adjust camera to look at the painting (keep this smooth for natural viewing)
+        const currentLookAt = new THREE.Vector3();
+        camera.getWorldDirection(currentLookAt);
+        currentLookAt.add(camera.position);
+        
+        // Lerp the look-at target (keep this smooth)
+        currentLookAt.lerp(targetCameraLookAt, cameraLerpFactor * 2);
+        controls.target.copy(currentLookAt);
+      } else {
+        // Position camera at the same location as the indicator for normal wall view
+        const desiredCameraPosition = currentPos.clone()
+          .add(new THREE.Vector3(0, 1.5, 0)); // Camera at same X,Z as object, but at eye level
+        
+        // Ensure camera position is within room boundaries
+        enforceRoomBoundaries(desiredCameraPosition);
+        
+        // Smoothly interpolate camera position
+        camera.position.lerp(desiredCameraPosition, cameraLerpFactor);
+        
+        // Set camera to look in the same direction as the object (using object's rotation)
+        const objectRotationY = movableObject.rotation.y;
+        const lookDirection = new THREE.Vector3(
+          Math.sin(objectRotationY),
+          0,
+          Math.cos(objectRotationY)
+        ).normalize();
+        const cameraTarget = desiredCameraPosition.clone().add(lookDirection);
+        controls.target.copy(cameraTarget);
+      }
       
-      const cameraTarget = currentPos.clone().add(new THREE.Vector3(0, 1.5, 0));
-      const desiredCameraPosition = currentPos.clone()
-        .sub(characterForward.multiplyScalar(5))
-        .add(new THREE.Vector3(0, 3, 0));
-      
-      // Smoothly interpolate camera position
-      camera.position.lerp(desiredCameraPosition, cameraLerpFactor);
-      
-      // Update controls target
-      controls.target.lerp(cameraTarget, cameraLerpFactor);
       controls.update();
     };
     
@@ -299,10 +458,8 @@ const SimpleModelViewer = () => {
         scene.remove(cube);
         
         const model = gltf.scene;
-        model.scale.set(1.2, 1.2, 1.2);
-        model.position.y = -1.5;
-        model.position.z = 0;
-        model.position.x = 0;
+        model.scale.set(1.0, 1.0, 1.0); // Reduce scale to fit better
+        model.position.set(0, -1.5, 0); // Center the model
         
         model.traverse((node) => {
           if (node.isMesh && node.material.map) {
@@ -310,12 +467,17 @@ const SimpleModelViewer = () => {
           }
         });
         
+        scene.add(model);
         
+        // Position camera inside the room after model loads
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
-        camera.lookAt(center);
         
-        scene.add(model);
+        // Set camera to face the front wall (position camera towards back, looking forward)
+        camera.position.set(0, 1.4, -10); // Position camera towards back of room
+        controls.target.set(0, 1.4, 5); // Look towards front wall
+        controls.update();
+        
         setLoading(false);
       },
       (xhr) => {
@@ -387,36 +549,154 @@ const SimpleModelViewer = () => {
       />
       
       {loading && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          background: 'rgba(255, 255, 255, 0.8)',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
-        }}>
+        <>
+          {/* Blurred Background Overlay */}
           <div style={{
-            width: '200px',
-            height: '6px',
-            background: '#ddd',
-            borderRadius: '3px',
-            overflow: 'hidden',
-            marginBottom: '10px'
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            zIndex: 999
+          }} />
+          
+          {/* VR Gallery Title Overlay */}
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'white',
+            zIndex: 1001
           }}>
+            {/* Logo */}
             <div style={{
-              width: `${loadingProgress}%`,
-              height: '100%',
-              background: '#4a90e2',
-              transition: 'width 0.3s ease-in-out'
-            }} />
+              marginBottom: '30px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
+                border: '3px solid rgba(255, 255, 255, 0.2)'
+              }}>
+                <div style={{
+                  color: 'white',
+                  fontSize: '2rem',
+                  fontWeight: 'bold',
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)'
+                }}>VR</div>
+              </div>
+            </div>
+            
+            <h1 style={{
+              fontSize: '4rem',
+              fontWeight: '300',
+              margin: '0 0 15px 0',
+              letterSpacing: '4px',
+              textTransform: 'uppercase',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              textShadow: 'none',
+              filter: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))'
+            }}>VR Gallery</h1>
+            <div style={{
+              fontSize: '1.3rem',
+              opacity: 0.9,
+              letterSpacing: '2px',
+              textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)',
+              marginBottom: '20px'
+            }}>Immersive Art Experience</div>
+            
+            {/* Loading Animation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '20px'
+            }}>
+              <div style={{
+                width: '50px',
+                height: '50px',
+                border: '3px solid rgba(255, 255, 255, 0.3)',
+                borderTop: '3px solid white',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }} />
+            </div>
           </div>
-          <div style={{ fontSize: '14px', color: '#666' }}>
-            Loading 3D Model... {loadingProgress}%
+          
+          {/* CSS Animation for spinner */}
+          <style jsx>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+
+          {/* Bottom Progress Bar */}
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            zIndex: 1002
+          }}>
+            {/* Progress Bar Container */}
+            <div style={{
+              width: '100%',
+              height: '6px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${loadingProgress}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #00f5ff, #0080ff, #00f5ff)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 2s infinite linear',
+                transition: 'width 0.3s ease-out',
+                boxShadow: '0 0 15px rgba(0, 245, 255, 0.6)'
+              }} />
+            </div>
+            
+            {/* Loading Text */}
+            <div style={{
+              padding: '15px 20px',
+              background: 'rgba(0, 0, 0, 0.8)',
+              color: 'white',
+              fontSize: '0.9rem',
+              fontWeight: '300',
+              letterSpacing: '1px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span>Loading Gallery...</span>
+              <span>{loadingProgress}%</span>
+            </div>
           </div>
-        </div>
+
+          {/* CSS Animations */}
+          <style jsx>{`
+            @keyframes shimmer {
+              0% { background-position: -200% 0; }
+              100% { background-position: 200% 0; }
+            }
+          `}</style>
+        </>
       )}
       
       {error && (
@@ -456,7 +736,7 @@ const SimpleModelViewer = () => {
         fontSize: '12px',
         color: '#666'
       }}>
-        🎯 Scroll to zoom | 🔄 Right click + drag to pan | 👆 Click to smoothly move the blue cube
+        Click on any painting to view it
       </div>
     </div>
   );

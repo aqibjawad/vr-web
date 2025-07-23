@@ -16,7 +16,7 @@ const Header = () => {
           <div>
             <img style={{height:"100px", width:"100px"}} src="/logo2.png" />
           </div>
-          <div className="brand-name">ARTIFACT AUTHENTIC ART</div>
+          <div className="brand-name">ARTIFACT AUTHENTIC ART INTELLIGENCE</div>
         </div>
         
         {/* Search Bar and Cart Icon grouped together */}
