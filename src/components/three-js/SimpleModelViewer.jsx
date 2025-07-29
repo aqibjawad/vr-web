@@ -453,7 +453,8 @@ const SimpleModelViewer = () => {
     const loader = new GLTFLoader();
     
     loader.load(
-      '/hall1.glb',
+      // '/hall1.glb',
+      'http://31.97.150.223/hall1.glb',
       (gltf) => {
         scene.remove(cube);
         
