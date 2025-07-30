@@ -1,0 +1,241 @@
+name: VR Web CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Create backup of current deployment
+          if [ -d "/var/www/aaai.global/dist" ]; then
+            sudo cp -r /var/www/aaai.global/dist /var/www/aaai.global/dist.backup.$(date +%Y%m%d_%H%M%S)
+          fi
+          
+          # Create directory if it doesn't exist
+          sudo mkdir -p /var/www/aaai.global/dist
+          
+          # Set proper permissions
+          sudo chown -R www-data:www-data /var/www/aaai.global/dist
+          
+    - name: Upload files via SCP
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        source: "dist/*"
+        target: "/tmp/vr-web-deploy/"
+        strip_components: 1
+        
+    - name: Move files and restart services
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Move files from temp to final location
+          sudo rsync -av --delete /tmp/vr-web-deploy/ /var/www/aaai.global/dist/
+          
+          # Set proper permissions
+          sudo chown -R www-data:www-data /var/www/aaai.global/dist
+          sudo chmod -R 755 /var/www/aaai.global/dist
+          
+          # Clean up temp directory
+          sudo rm -rf /tmp/vr-web-deploy/
+          
+          # Optional: Restart nginx if needed
+          # sudo systemctl reload nginx
+          
+          echo "Deployment completed successfully!"
+          
+  notify:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy.result }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+          echo "🚀 VR Web application deployed to https://aaai.global"
+          echo "📊 Build artifacts available for 7 days"
+        else
+          echo "❌ Deployment failed!"
+          echo "🔍 Check the deployment logs for details"
+          echo "💡 Previous backup is available on server"
+        fi
+        
+    - name: Create deployment summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ${{ needs.deploy.result == 'success' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+        echo "- **Target**: aaai.global/dist/" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Deployment time**: $(date)" >> $GITHUB_STEP_SUMMARY
+        
+  cleanup:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Cleanup old artifacts
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: context.runId,
+          });
+          
+          console.log(`Found ${artifacts.data.artifacts.length} artifacts`);
+          
+          // Keep only the latest 5 artifacts
+          const oldArtifacts = artifacts.data.artifacts.slice(5);
+          
+          for (const artifact of oldArtifacts) {
+            try {
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+              });
+              console.log(`Deleted artifact: ${artifact.name}`);
+            } catch (error) {
+              console.log(`Failed to delete artifact ${artifact.name}: ${error.message}`);
+            }
+          }
+
+# Workflow for manual deployment trigger
+  manual-deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          echo "🚀 Starting manual deployment..."
+          
+          # Create backup
+          if [ -d "/var/www/aaai.global/dist" ]; then
+            sudo cp -r /var/www/aaai.global/dist /var/www/aaai.global/dist.backup.manual.$(date +%Y%m%d_%H%M%S)
+            echo "✅ Backup created"
+          fi
+          
+          # Create directory
+          sudo mkdir -p /var/www/aaai.global/dist
+          
+    - name: Upload files via SCP
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        source: "dist/*"
+        target: "/tmp/vr-web-manual-deploy/"
+        strip_components: 1
+        
+    - name: Finalize manual deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          # Move files
+          sudo rsync -av --delete /tmp/vr-web-manual-deploy/ /var/www/aaai.global/dist/
+          
+          # Set permissions  
+          sudo chown -R www-data:www-data /var/www/aaai.global/dist
+          sudo chmod -R 755 /var/www/aaai.global/dist
+          
+          # Cleanup
+          sudo rm -rf /tmp/vr-web-manual-deploy/
+          
+          # Verify deployment
+          if [ -f "/var/www/aaai.global/dist/index.html" ]; then
+            echo "✅ Manual deployment completed successfully!"
+            echo "📁 Files deployed to /var/www/aaai.global/dist/"
+            echo "🌐 Available at https://aaai.global"
+          else
+            echo "❌ Deployment verification failed!"
+            exit 1
+          fi
