@@ -1,5 +1,5 @@
 import React from "react";
-import "./homefeatured.css";
+import "./homeFeatured.css";
 import FeaturedCards from "./featuredCards";
 const Homefeatured = () => {
   return (
