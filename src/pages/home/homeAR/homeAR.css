@@ -45,3 +45,43 @@
 .ar-card {
   background-color: #1A1A1A !important;
 }
+
+.qr-code-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.qr-code-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.qr-code-small:hover {
+  transform: scale(2.5);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  z-index: 20;
+}
+
+/* Alternative positioning - bottom center */
+.qr-code-container.center {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 10px;
+}
+
+/* Alternative positioning - top right */
+.qr-code-container.top-right {
+  top: 10px;
+  right: 10px;
+  bottom: unset;
+}

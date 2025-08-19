@@ -21,24 +21,28 @@ const ARCards = ({ halls = [], gridConfig = {} }) => {
       bgColor: "bg-slate",
       image: "/10.png",
       name: "Hall 1",
+      qrCode: "/qr-hall1.jpg", // Add QR code for each hall
     },
     {
       id: 2,
       bgColor: "bg-gray",
       image: "/32.png",
       name: "Hall 2",
+      qrCode: "/qr-hall1.jpg",
     },
     {
       id: 3,
       bgColor: "bg-zinc",
       image: "/40.png",
       name: "Hall 3",
+      qrCode: "/qr-hall1.jpg",
     },
     {
       id: 4,
       bgColor: "bg-zinc",
       image: "/47.png",
       name: "Hall 4",
+      qrCode: "/qr-hall1.jpg",
     },
   ];
 
@@ -65,6 +69,15 @@ const ARCards = ({ halls = [], gridConfig = {} }) => {
                   style={{ border: "none", outline: "none" }}
                 />
                 <div className="ar-card-overlay" />
+                
+                {/* QR Code with hover effect */}
+                <div className="qr-code-container">
+                  <img
+                    src={hall.qrCode || "/default-qr.png"}
+                    alt={`QR Code for ${hall.name}`}
+                    className="qr-code-small"
+                  />
+                </div>
               </div>
               <Card.Body className="text-center text-white">
                 <Card.Title className="ar-card-title">{hall.name}</Card.Title>

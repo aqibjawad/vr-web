@@ -1,23 +1,21 @@
 /* Algerian 3D Font - Applied Globally */
 
-/* Import Algerian-style fonts */
-@import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Butcherman&display=swap');
+/* Import Algerian font */
+@import url('https://db.onlinewebfonts.com/c/c144af7d488f9069913d40dee3cd1f70?family=Algerian');
 
 /* Global font application - All text elements */
 * {
-  font-family: 'Creepster', 'Nosifer', 'Butcherman', cursive, serif !important;
+  font-family: 'Algerian' !important;
 }
 
 body {
-  font-family: 'Creepster', 'Nosifer', 'Butcherman', cursive, serif !important;
+  font-family: 'Algerian' !important;
 }
 
 /* Enhanced 3D Text Effect for all text */
 body, *, h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, label {
-  font-family: 'Creepster', 'Nosifer', 'Butcherman', cursive, serif !important;
-  color: #ffd700; /* Gold color */
+  font-family: 'Algerian' !important;
+  color: #FFA218; /* Orange color */
   text-shadow: 
     0 1px 0 #ccc,
     0 2px 0 #c9c9c9,
@@ -37,8 +35,8 @@ body, *, h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, label {
 
 /* Special class for headings with more pronounced 3D effect */
 .heading-3d {
-  font-family: 'Creepster', 'Nosifer', 'Butcherman', cursive, serif !important;
-  color: #ffd700;
+  font-family: 'Algerian' !important;
+  color: #FFA218;
   text-shadow: 
     0 2px 0 #ccc,
     0 4px 0 #c9c9c9,
