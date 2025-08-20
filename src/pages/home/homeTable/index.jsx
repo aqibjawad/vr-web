@@ -41,7 +41,7 @@ const ArtGalleryFilter = () => {
   };
 
   return (
-    <div className="container-fluid" style={{ backgroundColor: '#1a1a1a', minHeight: '100vh', padding: '20px' }}>
+    <div className="container-fluid" style={{ backgroundColor: '#121212', minHeight: '100vh', padding: '20px' }}>
       <div className="row justify-content-center">
         <div className="col-12 col-lg-10">
           <div className="text-center mb-4">

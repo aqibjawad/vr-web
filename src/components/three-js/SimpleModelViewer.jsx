@@ -11,6 +11,7 @@ const SimpleModelViewer = () => {
   const [error, setError] = useState(null);
   const [showPaintingModal, setShowPaintingModal] = useState(false);
   const [selectedPainting, setSelectedPainting] = useState(null);
+  const currentPaintingId = useRef(null); // Track which painting is currently selected
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -214,23 +215,25 @@ const SimpleModelViewer = () => {
     const identifyPainting = (intersectPoint) => {
       const x = intersectPoint.x;
       const z = intersectPoint.z;
+      
+      console.log("Identifying painting at coordinates:", x, z);
 
-      // Front wall (positive Z)
-      if (z > 10) {
+      // Front wall (positive Z) - adjusted threshold
+      if (z > 4) {
         if (x < 0) return "painting_front_1";
         else return "painting_front_2";
       }
-      // Back wall (negative Z)
-      else if (z < -10) {
+      // Back wall (negative Z) - adjusted threshold
+      else if (z < -4) {
         return "painting_back_1";
       }
-      // Left wall (negative X)
-      else if (x < -8) {
+      // Left wall (negative X) - adjusted threshold
+      else if (x < -4) {
         if (z > 0) return "painting_left_1";
         else return "painting_left_2";
       }
-      // Right wall (positive X)
-      else if (x > 8) {
+      // Right wall (positive X) - adjusted threshold
+      else if (x > 4) {
         if (z > 0) return "painting_right_1";
         else return "painting_right_2";
       }
@@ -329,30 +332,52 @@ const SimpleModelViewer = () => {
         // Check if this is a wall-mounted object/painting or just an empty wall
         // Look for objects that are likely paintings or decorative items
         const clickedObject = intersect.object;
-        const isWallMountedObject =
-          clickedObject.name &&
-          (clickedObject.name.toLowerCase().includes("painting") ||
-            clickedObject.name.toLowerCase().includes("frame") ||
-            clickedObject.name.toLowerCase().includes("art") ||
-            clickedObject.name.toLowerCase().includes("picture") ||
-            clickedObject.name.toLowerCase().includes("vase") ||
-            clickedObject.name.toLowerCase().includes("sculpture") ||
-            clickedObject.material?.map || // Has texture (likely a painting)
-            clickedObject.geometry?.type === "PlaneGeometry"); // Flat plane (likely a painting)
+        console.log("Clicked object:", clickedObject.name, clickedObject.geometry?.type, "Has texture:", !!clickedObject.material?.map);
+        
+        // More permissive detection - treat most wall objects as paintings
+        const isWallMountedObject = 
+          clickedObject.material?.map || // Has texture (likely a painting)
+          clickedObject.geometry?.type === "PlaneGeometry" || // Flat plane (likely a painting)
+          (clickedObject.name && 
+            (clickedObject.name.toLowerCase().includes("painting") ||
+             clickedObject.name.toLowerCase().includes("frame") ||
+             clickedObject.name.toLowerCase().includes("art") ||
+             clickedObject.name.toLowerCase().includes("picture") ||
+             clickedObject.name.toLowerCase().includes("vase") ||
+             clickedObject.name.toLowerCase().includes("sculpture"))) ||
+          // If it's on a wall (not floor/ceiling) and not the room structure, treat as painting
+          (absNormalY < 0.5 && clickedObject.name !== "room" && clickedObject.name !== "wall");
+        
+        console.log("Is wall mounted object:", isWallMountedObject);
 
         if (isWallMountedObject) {
           // It's a painting/object on a wall, move indicator to stand in front of it
           console.log("Moving to painting/object at:", intersect.point);
 
-          // Identify the painting and show modal
-          const paintingId = identifyPainting(intersect.point);
-          const paintingInfo =
-            paintingDatabase[paintingId] || paintingDatabase["default"];
-          setSelectedPainting(paintingInfo);
-          setShowPaintingModal(true);
+          // Use object name as painting ID for consistent identification
+          const paintingId = clickedObject.name || "unknown_painting";
+          console.log("Current painting ID in ref:", currentPaintingId.current);
+          console.log("New painting ID:", paintingId);
+          console.log("Are they equal?", currentPaintingId.current === paintingId);
+          
+          // Check if this is the same painting as currently selected
+          if (currentPaintingId.current === paintingId) {
+            // Second click on same painting - show modal
+            const paintingInfo = paintingDatabase[paintingId] || paintingDatabase["default"];
+            setSelectedPainting(paintingInfo);
+            setShowPaintingModal(true);
+            console.log("Second click - opening modal for:", paintingId);
+          } else {
+            // First click on new painting - just move, don't show modal
+            currentPaintingId.current = paintingId;
+            console.log("First click - moving to painting:", paintingId);
+          }
         } else {
           // It's an empty wall, return to room center
           console.log("Clicked on empty wall, returning to center");
+
+          // Reset current painting selection
+          currentPaintingId.current = null;
 
           // Set target position to room center
           const roomCenter = new THREE.Vector3(0, 1.4, 0); // Center at eye level

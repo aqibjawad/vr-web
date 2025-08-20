@@ -15,11 +15,6 @@ const HomeVR = () => {
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div className="moreBtn">Click For More</div>
       </div>
-
-      <div className="vrQuote">
-        “The world of reality has its limits; the world of imagination is boundless.” <br />
-        <span className="vrName"> Jean-Jacques Rousseau </span>
-      </div>
     </div>
   );
 };

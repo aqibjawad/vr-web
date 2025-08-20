@@ -4,6 +4,11 @@ import FeaturedCards from "./featuredCards";
 const Homefeatured = () => {
   return (
     <div className="featuredMain">
+      <div className="collectionQuote">
+        “"Art is a progress towards perfection!” <br />
+        <span className="collectionName mt-5"> Tolstoy </span>
+      </div>
+
       <div className="featuredTitle">Featured</div>
       <div>
         <FeaturedCards />

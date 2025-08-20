@@ -15,10 +15,10 @@ const HomeExhibition = () => {
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div className="moreBtn">Click For More</div>
       </div>
-      <div className="exhibitionQuote">
+      {/* <div className="exhibitionQuote">
         Painting is a means of self-enlightenment."
         <span className="exhibitionName"> John Olsen </span>
-      </div>
+      </div> */}
     </div>
   );
 };
