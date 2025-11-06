@@ -4,7 +4,7 @@ import GiftCards from "./giftCards";
 const Homegift = () => {
   return (
     <div className="giftMain">
-      <div className="collectionQuote">
+      <div className="giftsQuote">
         “"Creativity is piercing the mundane to find the marvelous.” <br />
         <span className="collectionName"> Bill Moyers </span>
       </div>

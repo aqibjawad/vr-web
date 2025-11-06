@@ -4,7 +4,7 @@ import FeaturedCards from "./featuredCards";
 const Homefeatured = () => {
   return (
     <div className="featuredMain">
-      <div className="collectionQuote">
+      <div className="featuredQuote">
         “"Art is a progress towards perfection!” <br />
         <span className="collectionName mt-5"> Tolstoy </span>
       </div>

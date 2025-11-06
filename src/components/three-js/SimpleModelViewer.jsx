@@ -4,6 +4,31 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as TWEEN from "@tweenjs/tween.js";
 
+// Icon components (simple SVG implementations)
+const X = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const Play = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z" />
+  </svg>
+);
+
+const Volume2 = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 14.142M6.343 6.343A8 8 0 004.222 16.1l2.122 2.122m5.656-5.656L9.88 14.686" />
+  </svg>
+);
+
+const MoreHorizontal = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01" />
+  </svg>
+);
+
 const SimpleModelViewer = () => {
   const containerRef = useRef(null);
   const [loading, setLoading] = useState(true);
@@ -11,7 +36,17 @@ const SimpleModelViewer = () => {
   const [error, setError] = useState(null);
   const [showPaintingModal, setShowPaintingModal] = useState(false);
   const [selectedPainting, setSelectedPainting] = useState(null);
+  const [selectedPaintingImage, setSelectedPaintingImage] = useState(null);
+  const [selectedPaintingName, setSelectedPaintingName] = useState(null);
   const currentPaintingId = useRef(null); // Track which painting is currently selected
+
+  // Close modal function
+  const closeModal = () => {
+    setShowPaintingModal(false);
+    setSelectedPainting(null);
+    setSelectedPaintingImage(null);
+    setSelectedPaintingName(null);
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -49,11 +84,11 @@ const SimpleModelViewer = () => {
     renderer.toneMappingExposure = 0.01; // More reasonable exposure value
     containerRef.current.appendChild(renderer.domElement);
 
-    // Warmer, softer lighting setup to match room ambiance
-    const ambientLight = new THREE.AmbientLight(0xf5f5dc, 0.08); // Warm beige ambient light, further reduced intensity
+    // Natural gallery lighting setup to match reference image
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // White ambient light for natural gallery appearance
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xfff8dc, 0.08); // Warm cornsilk color, further reduced intensity
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4); // White directional light for even illumination
     directionalLight.position.set(0, 10, 0);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048; // Increased resolution
@@ -66,12 +101,12 @@ const SimpleModelViewer = () => {
 
     function createSpotlight(x, y, z, intensity, distance) {
       const spotLight = new THREE.SpotLight(
-        0xfff8dc,
+        0xffffff,
         intensity,
         distance,
         Math.PI / 6,
         0.3
-      ); // Warm cornsilk color
+      ); // White spotlight for natural gallery lighting
       spotLight.position.set(x, y, z);
       spotLight.castShadow = true;
       spotLight.shadow.mapSize.width = 512;
@@ -84,16 +119,16 @@ const SimpleModelViewer = () => {
     const leftWallLights = [];
     const rightWallLights = [];
     for (let i = -15; i <= 15; i += 7.5) {
-      const leftLight = createSpotlight(-10, 5, i, 0.05, 10); // Minimal intensity for very subtle wall object lighting
+      const leftLight = createSpotlight(-10, 5, i, 0.2, 10); // Natural gallery spotlight intensity
       scene.add(leftLight);
       leftWallLights.push(leftLight);
 
-      const rightLight = createSpotlight(-10, 5, i, 0.05, 10); // Minimal intensity for very subtle wall object lighting
+      const rightLight = createSpotlight(10, 5, i, 0.2, 10); // Natural gallery spotlight intensity
       scene.add(rightLight);
       rightWallLights.push(rightLight);
     }
 
-    const fillLight = new THREE.HemisphereLight(0xfff8dc, 0xf5deb3, 0.01); // Warm colors, minimal intensity
+    const fillLight = new THREE.HemisphereLight(0xffffff, 0xf0f0f0, 0.1); // White hemisphere light for natural gallery ambiance
     scene.add(fillLight);
 
     // Add floor with more stable rendering properties
@@ -215,7 +250,7 @@ const SimpleModelViewer = () => {
     const identifyPainting = (intersectPoint) => {
       const x = intersectPoint.x;
       const z = intersectPoint.z;
-      
+
       console.log("Identifying painting at coordinates:", x, z);
 
       // Front wall (positive Z) - adjusted threshold
@@ -332,22 +367,43 @@ const SimpleModelViewer = () => {
         // Check if this is a wall-mounted object/painting or just an empty wall
         // Look for objects that are likely paintings or decorative items
         const clickedObject = intersect.object;
-        console.log("Clicked object:", clickedObject.name, clickedObject.geometry?.type, "Has texture:", !!clickedObject.material?.map);
+        console.log(
+          "Clicked object:",
+          clickedObject.name,
+          clickedObject.geometry?.type,
+          "Has texture:",
+          !!clickedObject.material?.map
+        );
+
+        // Log painting picture/texture details if available
+        if (clickedObject.material?.map) {
+          console.log("Painting texture/image:", clickedObject.material.map);
+          console.log("Texture source:", clickedObject.material.map.image?.src || clickedObject.material.map.image?.currentSrc || "No source found");
+        }
         
+        // Log object name specifically for paintings
+        console.log("Object name:", clickedObject.name || "No name assigned");
+
+        // Store painting image and name for modal display
+        const paintingTexture = clickedObject.material?.map;
+        const paintingName = clickedObject.name || "Unknown Painting";
+
         // More permissive detection - treat most wall objects as paintings
-        const isWallMountedObject = 
+        const isWallMountedObject =
           clickedObject.material?.map || // Has texture (likely a painting)
           clickedObject.geometry?.type === "PlaneGeometry" || // Flat plane (likely a painting)
-          (clickedObject.name && 
+          (clickedObject.name &&
             (clickedObject.name.toLowerCase().includes("painting") ||
-             clickedObject.name.toLowerCase().includes("frame") ||
-             clickedObject.name.toLowerCase().includes("art") ||
-             clickedObject.name.toLowerCase().includes("picture") ||
-             clickedObject.name.toLowerCase().includes("vase") ||
-             clickedObject.name.toLowerCase().includes("sculpture"))) ||
+              clickedObject.name.toLowerCase().includes("frame") ||
+              clickedObject.name.toLowerCase().includes("art") ||
+              clickedObject.name.toLowerCase().includes("picture") ||
+              clickedObject.name.toLowerCase().includes("vase") ||
+              clickedObject.name.toLowerCase().includes("sculpture"))) ||
           // If it's on a wall (not floor/ceiling) and not the room structure, treat as painting
-          (absNormalY < 0.5 && clickedObject.name !== "room" && clickedObject.name !== "wall");
-        
+          (absNormalY < 0.5 &&
+            clickedObject.name !== "room" &&
+            clickedObject.name !== "wall");
+
         console.log("Is wall mounted object:", isWallMountedObject);
 
         if (isWallMountedObject) {
@@ -358,13 +414,32 @@ const SimpleModelViewer = () => {
           const paintingId = clickedObject.name || "unknown_painting";
           console.log("Current painting ID in ref:", currentPaintingId.current);
           console.log("New painting ID:", paintingId);
-          console.log("Are they equal?", currentPaintingId.current === paintingId);
-          
+          console.log(
+            "Are they equal?",
+            currentPaintingId.current === paintingId
+          );
+
           // Check if this is the same painting as currently selected
           if (currentPaintingId.current === paintingId) {
             // Second click on same painting - show modal
-            const paintingInfo = paintingDatabase[paintingId] || paintingDatabase["default"];
+            const paintingInfo =
+              paintingDatabase[paintingId] || paintingDatabase["default"];
+            
+            // Create image URL from texture for modal display
+            let imageUrl = null;
+            if (paintingTexture && paintingTexture.image) {
+              // Create canvas to convert ImageBitmap to data URL
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              canvas.width = paintingTexture.image.width || 512;
+              canvas.height = paintingTexture.image.height || 512;
+              ctx.drawImage(paintingTexture.image, 0, 0);
+              imageUrl = canvas.toDataURL('image/png');
+            }
+            
             setSelectedPainting(paintingInfo);
+            setSelectedPaintingImage(imageUrl);
+            setSelectedPaintingName(paintingName);
             setShowPaintingModal(true);
             console.log("Second click - opening modal for:", paintingId);
           } else {
@@ -642,8 +717,8 @@ const SimpleModelViewer = () => {
     const loader = new GLTFLoader();
 
     loader.load(
-      // '/hall1.glb',
-      "http://31.97.150.223/hall1.glb",
+      "/hall1.glb",
+      // "http://31.97.150.223/hall1.glb",
       (gltf) => {
         scene.remove(cube);
 
@@ -979,42 +1054,255 @@ const SimpleModelViewer = () => {
         Click on any painting to view it
       </div>
 
-      {/* Simple Painting Information Modal */}
+      {/* Sleek Painting Information Modal */}
       {showPaintingModal && selectedPainting && (
         <div
           style={{
-            position: "absolute",
+            position: 'fixed',
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 1000,
+            backdropFilter: 'blur(5px)'
           }}
-          onClick={() => setShowPaintingModal(false)}
+          onClick={closeModal}
         >
+          {/* Modal Content */}
           <div
             style={{
-              background: "white",
-              padding: "15px",
-              borderRadius: "5px",
-              maxWidth: "300px",
-              width: "80%",
+              backgroundColor: 'white',
+              borderRadius: '0px',
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
+              maxWidth: '900px',
+              width: '90%',
+              maxHeight: '80%',
+              overflow: 'hidden',
+              display: 'flex',
+              position: 'relative'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ margin: "0 0 5px 0" }}>{selectedPainting.title}</h3>
-            <p
-              style={{ margin: "0 0 10px 0", fontSize: "14px", color: "#666" }}
+            {/* Close Button */}
+            <button
+              onClick={closeModal}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                width: '35px',
+                height: '35px',
+                backgroundColor: 'black',
+                border: 'none',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 1001,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#333'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'black'}
             >
-              {selectedPainting.artist} - {selectedPainting.year}
-            </p>
-            <p style={{ margin: "0", fontSize: "13px" }}>
-              {selectedPainting.description}
-            </p>
+              <X style={{ width: '18px', height: '18px', color: 'white' }} />
+            </button>
+
+            {/* Left Side - Image */}
+            <div style={{
+              width: '45%',
+              backgroundColor: '#2a2a2a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative'
+            }}>
+              <img
+                src={selectedPaintingImage || "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=600&fit=crop&crop=faces"}
+                alt={selectedPaintingName || selectedPainting.title}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
+            </div>
+
+            {/* Right Side - Content */}
+            <div style={{
+              width: '55%',
+              padding: '40px 35px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start'
+            }}>
+              {/* Title */}
+              <h1 style={{
+                fontSize: '28px',
+                fontWeight: 'bold',
+                color: 'black',
+                marginBottom: '8px',
+                marginTop: '20px',
+                letterSpacing: '0.5px',
+                fontFamily: 'Algerian, serif'
+              }}>
+                {selectedPainting.title.toUpperCase()}
+              </h1>
+              
+              {/* Object Name */}
+              <p style={{
+                fontSize: '14px',
+                color: '#666',
+                marginBottom: '15px',
+                fontFamily: 'Algerian, serif'
+              }}>
+                Object: {selectedPaintingName}
+              </p>
+
+              {/* Artist Info */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  backgroundColor: '#ddd',
+                  borderRadius: '50%',
+                  marginRight: '12px'
+                }}></div>
+                <div>
+                  <p style={{
+                    fontWeight: '600',
+                    color: 'black',
+                    margin: '0',
+                    fontSize: '16px',
+                    fontFamily: 'Algerian, serif'
+                  }}>{selectedPainting.artist}</p>
+                  <p style={{
+                    color: '#666',
+                    fontSize: '13px',
+                    margin: '2px 0 0 0',
+                    fontFamily: 'Algerian, serif'
+                  }}>
+                    {selectedPainting.medium}
+                  </p>
+                  <p style={{
+                    color: '#666',
+                    fontSize: '13px',
+                    margin: '2px 0 0 0',
+                    fontFamily: 'Algerian, serif'
+                  }}>{selectedPainting.dimensions}</p>
+                </div>
+              </div>
+
+              <hr style={{
+                border: 'none',
+                borderTop: '1px solid #e0e0e0',
+                margin: '20px 0'
+              }} />
+
+              {/* Status */}
+              <p style={{
+                color: '#666',
+                marginBottom: '20px',
+                fontSize: '14px',
+                fontFamily: 'Algerian, serif'
+              }}>Not For Sale</p>
+
+              {/* Audio Player */}
+              <div style={{
+                backgroundColor: '#f8f8f8',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '25px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <button style={{
+                    width: '40px',
+                    height: '40px',
+                    backgroundColor: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}>
+                    <Play style={{ width: '16px', height: '16px', color: '#333', marginLeft: '2px' }} />
+                  </button>
+
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#666',
+                      marginBottom: '4px',
+                      fontFamily: 'Algerian, serif'
+                    }}>
+                      0:00 / 0:38
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      backgroundColor: '#ddd',
+                      borderRadius: '10px',
+                      height: '4px',
+                      position: 'relative'
+                    }}>
+                      <div style={{
+                        backgroundColor: '#666',
+                        height: '4px',
+                        borderRadius: '10px',
+                        width: '0%'
+                      }}></div>
+                    </div>
+                  </div>
+
+                  <button style={{
+                    padding: '4px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}>
+                    <Volume2 style={{ width: '16px', height: '16px', color: '#666' }} />
+                  </button>
+
+                  <button style={{
+                    padding: '4px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}>
+                    <MoreHorizontal style={{ width: '16px', height: '16px', color: '#666' }} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div style={{
+                color: '#555',
+                fontSize: '13px',
+                lineHeight: '1.6',
+                fontFamily: 'Algerian, serif'
+              }}>
+                <p style={{ marginBottom: '12px', margin: '0 0 12px 0' }}>
+                  <strong>{selectedPainting.artist.toUpperCase()}</strong>, {selectedPainting.year}.
+                </p>
+                <p style={{ margin: '0' }}>
+                  <strong>"{selectedPainting.title.toUpperCase()}"</strong>, {selectedPainting.description}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

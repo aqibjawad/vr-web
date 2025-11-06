@@ -14,7 +14,7 @@ const Header = () => {
       <div className="header-container">
         <div className="logo-section">
           <div>
-            <img style={{height:"100px", width:"100px"}} src="/logo2.png" />
+            <img style={{height:"120px", width:"250px"}} src="/logo2.png" />
           </div>
           <div className="brand-name">ARTIFACT AUTHENTIC ART INTELLIGENCE</div>
         </div>

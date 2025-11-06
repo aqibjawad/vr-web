@@ -8,6 +8,17 @@
   justify-content: center;
 }
 
+.arQuote {
+  color: white;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 50px;
+  margin-top: 5rem;
+}
+
+
 .arTitle {
   color: #ffa218;
   text-align: center;

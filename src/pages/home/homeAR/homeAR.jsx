@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const HomeAR = () => {
   return (
     <div className="arMain">
-      <div className="vrQuote">
+      <div className="arQuote">
         “The world of reality has its limits; the world of imagination is
         boundless.” <br />
         <span className="vrName"> Jean-Jacques Rousseau </span>

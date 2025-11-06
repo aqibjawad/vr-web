@@ -8,6 +8,16 @@
     justify-content: center;
 }
 
+.giftsQuote {
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 37px;
+  letter-spacing: 4%;
+  text-align: center;
+  color: white;
+  margin-top: 2rem;
+}
+
 
 .homegifthead {
   color: white;
